@@ -1,0 +1,58 @@
+name: Backend CI Pipeline
+
+# Description:
+# This pipeline is designed for the continuous integration of the backend application.
+# It performs the following steps:
+# - Installs dependencies
+# - Lints the code to ensure style consistency
+# - Runs tests to ensure functionality
+# - Builds the application to verify production readiness
+# Triggers:
+# - Push events to feature branches.
+# - Pull request events targeting the main branch.
+
+on:
+  push:
+    paths:
+      - './**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - './**'
+  workflow_dispatch:
+
+permissions: write-all
+
+env:
+  BACKEND_PREFIX: backend
+  APPLICATION_NAME: Store.Api
+  NODE_VERSION: 22.x
+
+jobs:
+  testing:
+    name: Build check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Building application
+        run: npm run build
+
+      - name: Testing application
+        run: npm run test
+
+      - name: Linting application
+        run: npm run lint
